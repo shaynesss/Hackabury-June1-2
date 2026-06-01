@@ -1,3 +1,4 @@
+from typing import Optional
 from urllib.parse import urljoin, urlparse
 
 _HEADERS = {
@@ -15,7 +16,7 @@ def _to_hex(rgb: tuple) -> str:
     return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 
-def _find_logo(soup, base_url: str) -> str | None:
+def _find_logo(soup, base_url: str) -> Optional[str]:
     def rel_list(tag):
         r = tag.get("rel") or []
         return r.split() if isinstance(r, str) else r
@@ -59,7 +60,7 @@ def _find_logo(soup, base_url: str) -> str | None:
     return None
 
 
-def _block_reason(resp, html: str) -> str | None:
+def _block_reason(resp, html: str) -> Optional[str]:
     if resp.status_code == 429:
         return "rate_limited"
 
