@@ -13,15 +13,15 @@ export default function EntryScreen({ onSubmit, onDemo, error }) {
 
   return (
     <div className="entry-screen">
-      <div className="entry-wordmark">
-        <div className="entry-wordmark-icon">P</div>
-        PassDraft by Romax
-      </div>
-
-      <div>
-        <h1 className="entry-heading">Any website.<br />A wallet pass.</h1>
-        <p className="entry-subheading">
-          Paste a client URL and watch their brand transform into an animated digital wallet pass in seconds.
+      <div className="entry-brand">
+        <img
+          src="https://romax.co.uk/wp-content/uploads/2021/09/Romax-logo.svg"
+          alt="Romax"
+          className="entry-romax-logo"
+        />
+        <div className="entry-product-name">PassPreview — Romax</div>
+        <p className="entry-desc">
+          Paste any website URL and preview it as a digital wallet pass in seconds.
         </p>
       </div>
 
