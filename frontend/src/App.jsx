@@ -23,7 +23,7 @@ export default function App() {
     setTimeout(() => {
       setIsRevealing(false)
       setStage('result')
-    }, 3900)
+    }, 2100)
   }
 
   async function handleScrape(url) {
@@ -39,7 +39,7 @@ export default function App() {
       setTimeout(() => {
         setIsRevealing(false)
         setStage(data.blocked ? 'blocked' : 'result')
-      }, 3900)
+      }, 2100)
     } catch (e) {
       setError(e.message)
       setStage('entry')
