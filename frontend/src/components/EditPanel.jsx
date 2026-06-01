@@ -100,7 +100,7 @@ export default function EditPanel({ data, onDone, onSend, onBack }) {
 
         <div className="edit-actions">
           <button className="btn-green" onClick={() => onSend(draft)}>
-            Send to Romax →
+            Looks good →
           </button>
           <button className="btn-primary" onClick={() => onDone(draft)}>
             Done Editing
