@@ -916,12 +916,12 @@ body {
 .cta-screen {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 32px;
   padding: 40px 24px;
   max-width: 480px;
   width: 100%;
-  text-align: center;
+  text-align: left;
 }
 
 .cta-pass-mini {
@@ -985,15 +985,18 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
+  width: 100%;
 }
 
 .cta-link-btn {
-  padding: 8px 16px;
+  display: block;
+  width: 100%;
+  padding: 12px 24px;
   background: transparent;
   color: var(--muted);
   border: 1px solid var(--border2);
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-family: inherit;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
