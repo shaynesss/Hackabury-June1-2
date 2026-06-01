@@ -21,7 +21,7 @@ const QR_DATA = [
 
 function QRCode({ fill = 'black', bgFill = 'white' }) {
   return (
-    <svg width="76" height="76" viewBox="0 0 21 21" style={{ display: 'block' }}>
+    <svg width="100" height="100" viewBox="0 0 21 21" style={{ display: 'block' }}>
       <rect width="21" height="21" fill={bgFill} />
       <g fill={fill}>
         <rect x="0" y="0" width="7" height="7" rx="0.8" />
@@ -43,19 +43,19 @@ function QRCode({ fill = 'black', bgFill = 'white' }) {
 
 function LinearBarcode() {
   const bars = [
-    [6,2],[10,1],[13,2],[17,1],[21,3],[26,1],[29,1],[32,2],
-    [36,1],[39,1],[42,2],[46,2],[51,3],[57,1],[60,1],[63,1],
-    [67,2],[71,1],[75,3],[80,1],[83,2],[87,1],[91,2],[95,2],
-    [100,1],[103,3],[108,1],[111,1],[115,2],[119,1],[122,3],
+    [4,2],[8,1],[12,2],[16,1],[20,3],[24,1],[28,1],[32,2],
+    [36,1],[40,1],[44,2],[48,2],[53,3],[58,1],[62,1],[66,1],
+    [70,2],[74,1],[78,3],[83,1],[87,2],[91,1],[95,2],[99,2],
+    [104,1],[108,3],[113,1],[117,1],[121,2],[126,1],[130,3],
   ]
   return (
-    <svg width="130" height="72" viewBox="0 0 130 72" style={{ display: 'block' }}>
-      <rect width="130" height="72" fill="white" rx="3" />
+    <svg width="180" height="64" viewBox="0 0 140 64" style={{ display: 'block' }}>
+      <rect width="140" height="64" fill="white" />
       {bars.map(([x, w], i) => (
-        <rect key={i} x={x} y="6" width={w} height="48" fill="#111" />
+        <rect key={i} x={x} y="6" width={w} height="44" fill="#111" />
       ))}
-      <text x="65" y="66" textAnchor="middle" fontSize="6" fontFamily="monospace" fill="#555">
-        RMX-PASS-2025-001
+      <text x="70" y="58" textAnchor="middle" fontSize="6" fontFamily="monospace" fill="#555">
+        RMX-2025-001
       </text>
     </svg>
   )
@@ -70,11 +70,11 @@ function PDF417Barcode() {
     [[4,2],[8,2],[13,3],[19,1],[23,2],[28,1],[32,3],[38,1],[42,2],[47,3],[53,2],[58,1],[62,2],[67,1],[71,3],[77,2],[82,1],[86,2],[91,1],[95,2],[100,3],[106,2],[111,1]],
   ]
   return (
-    <svg width="130" height="72" viewBox="0 0 130 72" style={{ display: 'block' }}>
-      <rect width="130" height="72" fill="white" rx="3" />
+    <svg width="180" height="64" viewBox="0 0 120 64" style={{ display: 'block' }}>
+      <rect width="120" height="64" fill="white" />
       {rows.map((row, r) =>
         row.map(([x, w], c) => (
-          <rect key={`${r}-${c}`} x={x} y={4 + r * 12} width={w} height={9} fill="#111" />
+          <rect key={`${r}-${c}`} x={x} y={4 + r * 10} width={w} height={8} fill="#111" />
         ))
       )}
     </svg>
@@ -99,59 +99,38 @@ function LoadingCard() {
   const [phase, setPhase] = useState(0)
 
   useEffect(() => {
-    // First pass: reveal everything from scratch
-    // Subsequent passes: header/logo/name stay, fields fade out then back in
     const isFirst = phase === 0
     if (!isFirst) setStep(3)
-
     const delays = isFirst
       ? [[1,300],[2,750],[3,1150],[4,1600],[5,2000],[6,2400],[7,2800],[8,3300]]
       : [[4,400],[5,800],[6,1200],[7,1600],[8,2000]]
-
     const timers = delays.map(([s, t]) => setTimeout(() => setStep(s), t))
     const loop = setTimeout(() => setPhase(p => p + 1), 5200)
-
     return () => { timers.forEach(clearTimeout); clearTimeout(loop) }
   }, [phase])
 
-  const headerBg = step >= 1 ? '#182535' : '#1c1c2a'
-
   return (
-    <div className="pass-card is-loading pass-apple">
-      <div className="pass-header" style={{
-        background: headerBg,
-        minHeight: 72,
-        transition: 'background 1.2s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '18px 18px 14px',
-      }}>
-        <div style={show(step, 2)}>
-          <div className="skeleton" style={{ width: 40, height: 40, borderRadius: 8 }} />
-        </div>
-        <div style={show(step, 3)}>
-          <div className="skeleton" style={{ width: 96, height: 12, marginBottom: 6 }} />
-          <div className="skeleton" style={{ width: 64, height: 9 }} />
-        </div>
+    <div className="pass-card is-loading" style={{ background: '#152237' }}>
+      <div className="pass-top" style={show(step, 2)}>
+        <div className="skeleton skel-white" style={{ width: 80, height: 11, borderRadius: 4 }} />
       </div>
-      <div className="pass-body" style={{ background: '#e8e8ee', padding: '14px 18px 12px' }}>
+      <div className="pass-divider" style={{ opacity: step >= 2 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
+      <div className="pass-body">
+        <div style={show(step, 3)}>
+          <div className="skeleton skel-white" style={{ width: '62%', height: 22, borderRadius: 5, marginBottom: 18 }} />
+        </div>
         <div className="pass-fields">
           {[4, 5, 6, 7].map((threshold, i) => (
             <div key={i} style={show(step, threshold)}>
-              <div className="skeleton" style={{ width: 52, height: 9, marginBottom: 5 }} />
-              <div className="skeleton" style={{ width: 76, height: 14 }} />
+              <div className="skeleton skel-white" style={{ width: 44, height: 9, borderRadius: 3, marginBottom: 6 }} />
+              <div className="skeleton skel-white" style={{ width: 68, height: 15, borderRadius: 4 }} />
             </div>
           ))}
         </div>
-        <div style={{ ...show(step, 7), marginTop: 12 }}>
-          <div className="skeleton" style={{ width: '75%', height: 10 }} />
-        </div>
       </div>
-      <div className="pass-footer" style={{ background: '#e8e8ee', borderTop: '1px solid rgba(0,0,0,0.07)' }}>
-        <div style={show(step, 8)}>
-          <div className="skeleton" style={{ width: 76, height: 76, borderRadius: 4 }} />
-        </div>
+      <div className="pass-divider" style={{ opacity: step >= 7 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
+      <div className="pass-footer" style={show(step, 8)}>
+        <div className="skeleton skel-white" style={{ width: '100%', height: 88, borderRadius: 12 }} />
       </div>
     </div>
   )
@@ -159,7 +138,6 @@ function LoadingCard() {
 
 function RevealingCard({ data, barcodeType = 'qr' }) {
   const [step, setStep] = useState(0)
-  const [imgError, setImgError] = useState(false)
 
   useEffect(() => {
     const timers = [
@@ -175,36 +153,23 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
     return () => timers.forEach(clearTimeout)
   }, [])
 
-  const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
-  const primary  = colours?.primary || '#1a1a1a'
-  const textCol  = colours?.text    || '#ffffff'
+  const { brand_name, logo_url, colours, pass_type, fields } = data
+  const primary = colours?.primary || '#2d5a8e'
+  const textColor = colours?.text || '#ffffff'
+  const secondaryColor = colours?.secondary || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
-  const headerBg = step >= 1 ? primary : '#1c1c2a'
-  const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
-
-  const logoEl = logo_url && !imgError
-    ? <img src={logo_url} alt={brand_name} className="pass-logo" style={{ filter: logoFilter }} onError={() => setImgError(true)} />
-    : <div className="pass-logo-fallback" style={{ color: textCol }}>{brand_name?.[0]?.toUpperCase() || '?'}</div>
 
   return (
-    <div className="pass-card pass-apple is-loading">
-      <div className="pass-header" style={{
-        background: headerBg,
-        color: textCol,
-        minHeight: 72,
-        transition: 'background 1.2s ease',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '18px 18px 14px',
-      }}>
-        <div style={show(step, 2)}>{logoEl}</div>
-        <div className="pass-brand" style={{ color: textCol, ...show(step, 3) }}>
-          <div className="pass-brand-name">{brand_name}</div>
-          <div className="pass-type-label">{pass_type}</div>
-        </div>
+    <div className="pass-card is-loading" style={{ background: primary, opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.4s ease', '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
+      <div className="pass-top" style={show(step, 2)}>
+        {logo_url && <img className="pass-logo-img" src={logo_url} alt="" onError={e => { e.target.style.display = 'none' }} />}
+        <span className="pass-company">{brand_name}</span>
       </div>
+      <div className="pass-divider" style={{ opacity: step >= 2 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
       <div className="pass-body">
+        <div style={show(step, 3)}>
+          <div className="pass-type-heading">{pass_type}</div>
+        </div>
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field" style={show(step, 4 + i)}>
@@ -213,27 +178,56 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
             </div>
           ))}
         </div>
-        {tagline && <div className="pass-tagline" style={show(step, 7)}>{tagline}</div>}
       </div>
-      <div className="pass-footer">
-        <div className="qr-wrap" style={show(step, 8)}>
-          <div className="qr-box">
-            <BarcodeDisplay type={barcodeType} />
-          </div>
-          <span className="qr-scan-label">Scan to activate</span>
+      <div className="pass-divider" style={{ opacity: step >= 7 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
+      <div className="pass-footer" style={show(step, 8)}>
+        <div className="barcode-box">
+          <BarcodeDisplay type={barcodeType} />
         </div>
       </div>
     </div>
   )
 }
 
-export default function PassCard({ data, walletType = 'apple', isLoading = false, isRevealing = false, barcodeType = 'qr' }) {
-  const [imgError, setImgError] = useState(false)
+function StaticCard({ data, barcodeType = 'qr', className = '' }) {
+  const { brand_name, logo_url, colours, pass_type, fields } = data
+  const primary = colours?.primary || '#2d5a8e'
+  const textColor = colours?.text || '#ffffff'
+  const secondaryColor = colours?.secondary || '#ffffff'
+  const visibleFields = (fields || []).slice(0, 4)
 
+  return (
+    <div className={`pass-card ${className}`} style={{ background: primary, '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
+      <div className="pass-top">
+        {logo_url && <img className="pass-logo-img" src={logo_url} alt="" onError={e => { e.target.style.display = 'none' }} />}
+        <span className="pass-company">{brand_name}</span>
+      </div>
+      <div className="pass-divider" />
+      <div className="pass-body">
+        <div className="pass-type-heading">{pass_type}</div>
+        <div className="pass-fields">
+          {visibleFields.map((f, i) => (
+            <div key={i} className="pass-field">
+              <div className="pass-field-label">{f.label}</div>
+              <div className="pass-field-value">{f.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="pass-divider" />
+      <div className="pass-footer">
+        <div className="barcode-box">
+          <BarcodeDisplay type={barcodeType} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function PassCard({ data, isLoading = false, isRevealing = false, barcodeType = 'qr' }) {
   if (isLoading || !data) {
     return <div className="pass-card-wrap"><LoadingCard /></div>
   }
-
   if (isRevealing) {
     return (
       <div className="pass-card-wrap">
@@ -241,87 +235,9 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
       </div>
     )
   }
-
-  const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
-  const primary  = colours?.primary  || '#1a1a1a'
-  const textCol  = colours?.text     || '#ffffff'
-  const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
-
-  const logoEl = logo_url && !imgError
-    ? <img src={logo_url} alt={brand_name} className="pass-logo" style={{ filter: logoFilter }} onError={() => setImgError(true)} />
-    : <div className="pass-logo-fallback" style={{ color: textCol }}>{brand_name?.[0]?.toUpperCase() || '?'}</div>
-
-  const visibleFields = (fields || []).slice(0, 4)
-
-  if (walletType === 'apple') {
-    return (
-      <div className="pass-card-wrap">
-        <div className="pass-card pass-apple is-loaded">
-          <div className="pass-header" style={{ background: primary, color: textCol }}>
-            {logoEl}
-            <div className="pass-brand" style={{ color: textCol }}>
-              <div className="pass-brand-name">{brand_name}</div>
-              <div className="pass-type-label">{pass_type}</div>
-            </div>
-          </div>
-          <div className="pass-body">
-            <div className="pass-fields">
-              {visibleFields.map((f, i) => (
-                <div key={i} className="pass-field">
-                  <div className="pass-field-label">{f.label}</div>
-                  <div className="pass-field-value">{f.value}</div>
-                </div>
-              ))}
-            </div>
-            {tagline && <div className="pass-tagline">{tagline}</div>}
-          </div>
-          <div className="pass-footer">
-            <div className="qr-wrap">
-              <div className="qr-box">
-                <BarcodeDisplay type={barcodeType} />
-              </div>
-              <span className="qr-scan-label">Scan to activate</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Google Wallet — white card body, brand colour only in header
   return (
     <div className="pass-card-wrap">
-      <div className="pass-card pass-google is-loaded">
-        <div className="pass-header" style={{ background: primary }}>
-          {logo_url && !imgError
-            ? <img src={logo_url} alt={brand_name} className="pass-google-logo" style={{ filter: logoFilter }} onError={() => setImgError(true)} />
-            : <div className="pass-logo-fallback" style={{ background: 'rgba(255,255,255,0.18)', color: textCol }}>
-                {brand_name?.[0]?.toUpperCase() || '?'}
-              </div>
-          }
-          <div className="pass-brand-name" style={{ color: textCol, marginTop: 8 }}>{brand_name}</div>
-          <div className="pass-type-label" style={{ color: textCol, opacity: 0.7 }}>{pass_type}</div>
-        </div>
-        <div className="pass-body" style={{ background: '#ffffff', padding: '14px 18px 12px' }}>
-          <div className="pass-fields">
-            {visibleFields.map((f, i) => (
-              <div key={i} className="pass-field">
-                <div className="pass-field-label" style={{ color: '#86868b' }}>{f.label}</div>
-                <div className="pass-field-value" style={{ color: '#1d1d1f' }}>{f.value}</div>
-              </div>
-            ))}
-          </div>
-          {tagline && <div className="pass-tagline" style={{ color: '#6e6e73' }}>{tagline}</div>}
-        </div>
-        <div className="pass-footer" style={{ background: '#f5f5f7', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-          <div className="qr-wrap">
-            <div className="qr-box">
-              <BarcodeDisplay type={barcodeType} />
-            </div>
-            <span className="qr-scan-label" style={{ color: '#86868b' }}>Scan to activate</span>
-          </div>
-        </div>
-      </div>
+      <StaticCard data={data} barcodeType={barcodeType} className="is-loaded" />
     </div>
   )
 }
