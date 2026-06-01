@@ -1,4 +1,3 @@
-import httpx
 from urllib.parse import urljoin, urlparse
 
 _HEADERS = {
@@ -94,6 +93,7 @@ def _block_reason(resp, html: str) -> str | None:
 
 
 async def scrape_page(url: str) -> dict:
+    import httpx
     from bs4 import BeautifulSoup
     from colorthief import ColorThief
     from io import BytesIO

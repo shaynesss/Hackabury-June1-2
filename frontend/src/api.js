@@ -1,10 +1,10 @@
 export const MOCK_DATA = {
   brand_name: 'Romax Digital',
-  logo_url: null,
+  logo_url: 'https://romax.co.uk/wp-content/uploads/2021/09/Romax-logo.svg',
   colours: { primary: '#6366f1', secondary: '#f0f0ff', text: '#ffffff' },
   pass_type: 'Member ID',
   fields: [
-    { label: 'Member', value: 'Shayne Yong' },
+    { label: 'Member', value: 'Maurice Koby' },
     { label: 'Tier', value: 'Founding Partner' },
     { label: 'Since', value: 'June 2025' },
     { label: 'ID', value: 'RMX-0001' },

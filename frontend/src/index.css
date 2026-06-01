@@ -276,18 +276,23 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(21,119,155,0.06) 0%,
-    rgba(21,119,155,0.16) 50%,
-    rgba(21,119,155,0.06) 100%
+    rgba(21,119,155,0.07) 0%,
+    rgba(21,119,155,0.22) 45%,
+    rgba(21,119,155,0.07) 100%
   );
-  background-size: 300px 100%;
-  animation: shimmer 1.8s ease-in-out infinite;
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 4px;
 }
 
 @keyframes shimmer {
-  0%   { background-position: -300px 0; }
-  100% { background-position: 300px 0; }
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skel-appear {
+  animation: fieldIn 0.5s ease both;
+  animation-delay: var(--skel-delay, 0s);
 }
 
 /* ── APPLE WALLET PASS ─────────────────────────────── */
@@ -348,11 +353,17 @@ body {
 
 .pass-field {
   animation: fieldIn 0.4s ease both;
+  animation-delay: var(--reveal-delay, 0s);
 }
 
 @keyframes fieldIn {
   from { opacity: 0; transform: translateY(7px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+.reveal-item {
+  animation: fieldIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0s);
 }
 
 .pass-field-label {
