@@ -96,20 +96,23 @@ function show(step, threshold) {
 
 function LoadingCard() {
   const [step, setStep] = useState(0)
+  const [phase, setPhase] = useState(0)
 
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setStep(1), 300),
-      setTimeout(() => setStep(2), 750),
-      setTimeout(() => setStep(3), 1150),
-      setTimeout(() => setStep(4), 1600),
-      setTimeout(() => setStep(5), 2000),
-      setTimeout(() => setStep(6), 2400),
-      setTimeout(() => setStep(7), 2800),
-      setTimeout(() => setStep(8), 3300),
-    ]
-    return () => timers.forEach(clearTimeout)
-  }, [])
+    // First pass: reveal everything from scratch
+    // Subsequent passes: header/logo/name stay, fields fade out then back in
+    const isFirst = phase === 0
+    if (!isFirst) setStep(3)
+
+    const delays = isFirst
+      ? [[1,300],[2,750],[3,1150],[4,1600],[5,2000],[6,2400],[7,2800],[8,3300]]
+      : [[4,400],[5,800],[6,1200],[7,1600],[8,2000]]
+
+    const timers = delays.map(([s, t]) => setTimeout(() => setStep(s), t))
+    const loop = setTimeout(() => setPhase(p => p + 1), 5200)
+
+    return () => { timers.forEach(clearTimeout); clearTimeout(loop) }
+  }, [phase])
 
   const headerBg = step >= 1 ? '#182535' : '#1c1c2a'
 
@@ -160,14 +163,14 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setStep(1), 300),
-      setTimeout(() => setStep(2), 750),
-      setTimeout(() => setStep(3), 1150),
-      setTimeout(() => setStep(4), 1600),
-      setTimeout(() => setStep(5), 2000),
-      setTimeout(() => setStep(6), 2400),
-      setTimeout(() => setStep(7), 2800),
-      setTimeout(() => setStep(8), 3300),
+      setTimeout(() => setStep(1), 150),
+      setTimeout(() => setStep(2), 400),
+      setTimeout(() => setStep(3), 650),
+      setTimeout(() => setStep(4), 900),
+      setTimeout(() => setStep(5), 1100),
+      setTimeout(() => setStep(6), 1300),
+      setTimeout(() => setStep(7), 1500),
+      setTimeout(() => setStep(8), 1750),
     ]
     return () => timers.forEach(clearTimeout)
   }, [])
