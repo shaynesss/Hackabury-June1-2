@@ -180,7 +180,8 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
   const textCol  = colours?.text    || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
   const headerBg = step >= 1 ? primary : '#1c1c2a'
-  const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
+  const isSvg = (logo_url || '').toLowerCase().endsWith('.svg')
+  const logoFilter = isSvg && (textCol === '#ffffff' || textCol === '#fff') ? 'brightness(0) invert(1)' : 'none'
 
   const logoEl = logo_url && !imgError
     ? <img src={logo_url} alt={brand_name} className="pass-logo" style={{ filter: logoFilter }} onError={() => setImgError(true)} />
@@ -245,7 +246,8 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
   const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
   const primary  = colours?.primary  || '#1a1a1a'
   const textCol  = colours?.text     || '#ffffff'
-  const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
+  const isSvg = (logo_url || '').toLowerCase().endsWith('.svg')
+  const logoFilter = isSvg && (textCol === '#ffffff' || textCol === '#fff') ? 'brightness(0) invert(1)' : 'none'
 
   const logoEl = logo_url && !imgError
     ? <img src={logo_url} alt={brand_name} className="pass-logo" style={{ filter: logoFilter }} onError={() => setImgError(true)} />

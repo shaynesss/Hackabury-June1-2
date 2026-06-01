@@ -1,4 +1,5 @@
 from urllib.parse import urljoin, urlparse
+import re
 
 _HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -51,12 +52,41 @@ def _find_logo(soup, base_url: str) -> str | None:
             if href:
                 return urljoin(base_url, href)
 
-    # 4. og:image (social share image — not ideal but better than nothing)
+    # 4. og:logo
+    og_logo = soup.find("meta", property="og:logo")
+    if og_logo and og_logo.get("content"):
+        return og_logo["content"].strip()
+
+    # 5. og:image (social share image — not ideal but better than nothing)
     og = soup.find("meta", property="og:image")
     if og and og.get("content"):
         return og["content"].strip()
 
     return None
+
+
+def _favicon_fallback(url: str) -> str:
+    parsed = urlparse(url)
+    return f"{parsed.scheme}://{parsed.netloc}/favicon.ico"
+
+
+def _hex_to_rgb(value: str) -> tuple[int, int, int] | None:
+    if not value:
+        return None
+    m = re.fullmatch(r"#?([0-9a-fA-F]{6})", value.strip())
+    if not m:
+        return None
+    hex_value = m.group(1)
+    return tuple(int(hex_value[i:i+2], 16) for i in (0, 2, 4))
+
+
+def _is_light(hex_value: str) -> bool:
+    rgb = _hex_to_rgb(hex_value)
+    if not rgb:
+        return False
+    r, g, b = rgb
+    luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+    return luminance > 0.9
 
 
 def _block_reason(resp, html: str) -> str | None:
@@ -128,8 +158,11 @@ async def scrape_page(url: str) -> dict:
 
     title = meta(prop="og:title") or (soup.title.string.strip() if soup.title else domain)
     description = meta(prop="og:description") or meta(name="description")
-    theme_color = meta(name="theme-color") or None
+    theme_color = meta(name="theme-color") or meta(name="msapplication-TileColor") or None
+    og_image = meta(prop="og:image") or None
     logo_url = _find_logo(soup, url)
+    if not logo_url:
+        logo_url = _favicon_fallback(url)
 
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
@@ -139,7 +172,7 @@ async def scrape_page(url: str) -> dict:
         return {
             "title": title or domain,
             "description": description,
-            "logo_url": None,
+            "logo_url": logo_url,
             "theme_color": theme_color,
             "body_text": f"Brand: {domain}. Site uses bot protection — use your knowledge of this brand to generate realistic pass fields.",
             "image_colors": [],
@@ -148,16 +181,29 @@ async def scrape_page(url: str) -> dict:
         }
 
     image_colors: list[str] = []
-    if logo_url:
+
+    async def palette_from(url_value: str) -> list[str]:
         try:
             async with httpx.AsyncClient(follow_redirects=True, timeout=3) as client:
-                img_resp = await client.get(logo_url, headers=_HEADERS)
+                img_resp = await client.get(url_value, headers=_HEADERS)
+            content_type = (img_resp.headers.get("content-type") or "").lower()
+            if "svg" in content_type:
+                return []
             if len(img_resp.content) < 200_000:
                 ct = ColorThief(BytesIO(img_resp.content))
                 palette = ct.get_palette(color_count=3, quality=1)
-                image_colors = [_to_hex(c) for c in palette]
+                return [_to_hex(c) for c in palette]
         except Exception:
-            pass
+            return []
+        return []
+
+    if logo_url:
+        image_colors = await palette_from(logo_url)
+
+    if (not image_colors or all(_is_light(c) for c in image_colors)) and og_image and og_image != logo_url:
+        og_palette = await palette_from(og_image)
+        if og_palette:
+            image_colors = og_palette
 
     return {
         "title": title,

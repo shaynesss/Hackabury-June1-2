@@ -2,12 +2,12 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from dotenv import load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
 from scraper import scrape_page
 from gemini import analyse
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 app = FastAPI()
 
