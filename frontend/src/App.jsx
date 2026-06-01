@@ -10,26 +10,35 @@ import BlockedScreen from './components/BlockedScreen'
 export default function App() {
   const [stage, setStage] = useState('entry')
   const [passData, setPassData] = useState(null)
+  const [isRevealing, setIsRevealing] = useState(false)
   const [walletType, setWalletType] = useState('apple')
   const [error, setError] = useState(null)
 
   function handleDemo() {
     setError(null)
+    setPassData(MOCK_DATA)
+    setIsRevealing(true)
     setStage('loading')
     setTimeout(() => {
-      setPassData(MOCK_DATA)
+      setIsRevealing(false)
       setStage('result')
-    }, 2500)
+    }, 3900)
   }
 
   async function handleScrape(url) {
     setError(null)
+    setPassData(null)
+    setIsRevealing(false)
     setStage('loading')
     try {
       const data = await scrape(url)
       if (data.error) throw new Error(data.error)
       setPassData(data)
-      setStage(data.blocked ? 'blocked' : 'result')
+      setIsRevealing(true)
+      setTimeout(() => {
+        setIsRevealing(false)
+        setStage(data.blocked ? 'blocked' : 'result')
+      }, 3900)
     } catch (e) {
       setError(e.message)
       setStage('entry')
@@ -58,8 +67,15 @@ export default function App() {
     return (
       <div className="app">
         <div className="stage-loading">
-          <PassCard data={null} walletType="apple" isLoading />
-          <p className="loading-label">Analysing brand identity…</p>
+          <PassCard
+            data={passData}
+            walletType="apple"
+            isLoading={!passData}
+            isRevealing={isRevealing}
+          />
+          <p className="loading-label">
+            {isRevealing ? 'Building your pass…' : 'Analysing brand identity…'}
+          </p>
         </div>
       </div>
     )

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const QR_DATA = [
   [6,8],[6,10],[6,12],[8,6],[10,6],[12,6],
@@ -27,15 +27,12 @@ function QRCode({ fill = 'black', bgFill = 'white' }) {
         <rect x="0" y="0" width="7" height="7" rx="0.8" />
         <rect x="1" y="1" width="5" height="5" rx="0.4" fill={bgFill} />
         <rect x="2" y="2" width="3" height="3" rx="0.3" fill={fill} />
-
         <rect x="14" y="0" width="7" height="7" rx="0.8" />
         <rect x="15" y="1" width="5" height="5" rx="0.4" fill={bgFill} />
         <rect x="16" y="2" width="3" height="3" rx="0.3" fill={fill} />
-
         <rect x="0" y="14" width="7" height="7" rx="0.8" />
         <rect x="1" y="15" width="5" height="5" rx="0.4" fill={bgFill} />
         <rect x="2" y="16" width="3" height="3" rx="0.3" fill={fill} />
-
         {QR_DATA.map(([x, y], i) => (
           <rect key={i} x={x} y={y} width="1" height="1" />
         ))}
@@ -44,41 +41,160 @@ function QRCode({ fill = 'black', bgFill = 'white' }) {
   )
 }
 
-function SkeletonCard() {
+function show(step, threshold) {
+  return {
+    opacity: step >= threshold ? 1 : 0,
+    transition: 'opacity 0.5s ease',
+  }
+}
+
+// Pure skeleton — shown while the API call is still in flight
+function LoadingCard() {
+  const [step, setStep] = useState(0)
+
+  useEffect(() => {
+    const timers = [
+      setTimeout(() => setStep(1), 300),
+      setTimeout(() => setStep(2), 750),
+      setTimeout(() => setStep(3), 1150),
+      setTimeout(() => setStep(4), 1600),
+      setTimeout(() => setStep(5), 2000),
+      setTimeout(() => setStep(6), 2400),
+      setTimeout(() => setStep(7), 2800),
+      setTimeout(() => setStep(8), 3300),
+    ]
+    return () => timers.forEach(clearTimeout)
+  }, [])
+
+  const headerBg = step >= 1 ? '#182535' : '#1c1c2a'
+
   return (
     <div className="pass-card is-loading pass-apple">
-      <div className="pass-header" style={{ background: '#1c1c2a', minHeight: 72 }}>
-        <div className="skeleton" style={{ width: 40, height: 40, borderRadius: 8 }} />
-        <div>
-          <div className="skeleton" style={{ width: 90, height: 12, marginBottom: 6 }} />
-          <div className="skeleton" style={{ width: 60, height: 9 }} />
+      <div className="pass-header" style={{
+        background: headerBg,
+        minHeight: 72,
+        transition: 'background 1.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '18px 18px 14px',
+      }}>
+        <div style={show(step, 2)}>
+          <div className="skeleton" style={{ width: 40, height: 40, borderRadius: 8 }} />
+        </div>
+        <div style={show(step, 3)}>
+          <div className="skeleton" style={{ width: 96, height: 12, marginBottom: 6 }} />
+          <div className="skeleton" style={{ width: 64, height: 9 }} />
         </div>
       </div>
       <div className="pass-body" style={{ background: '#e8e8ee', padding: '14px 18px 12px' }}>
         <div className="pass-fields">
-          {[0, 1, 2, 3].map(i => (
-            <div key={i}>
-              <div className="skeleton" style={{ width: 48, height: 9, marginBottom: 5 }} />
-              <div className="skeleton" style={{ width: 72, height: 14 }} />
+          {[4, 5, 6, 7].map((threshold, i) => (
+            <div key={i} style={show(step, threshold)}>
+              <div className="skeleton" style={{ width: 52, height: 9, marginBottom: 5 }} />
+              <div className="skeleton" style={{ width: 76, height: 14 }} />
             </div>
           ))}
         </div>
-        <div className="skeleton" style={{ width: '80%', height: 10, marginTop: 12 }} />
+        <div style={{ ...show(step, 7), marginTop: 12 }}>
+          <div className="skeleton" style={{ width: '75%', height: 10 }} />
+        </div>
       </div>
       <div className="pass-footer" style={{ background: '#e8e8ee', borderTop: '1px solid rgba(0,0,0,0.07)' }}>
-        <div className="skeleton" style={{ width: 76, height: 76, borderRadius: 4 }} />
+        <div style={show(step, 8)}>
+          <div className="skeleton" style={{ width: 76, height: 76, borderRadius: 4 }} />
+        </div>
       </div>
     </div>
   )
 }
 
-export default function PassCard({ data, walletType = 'apple', isLoading = false }) {
+// Real content revealing progressively — shown for demo and after API returns
+function RevealingCard({ data }) {
+  const [step, setStep] = useState(0)
+  const [imgError, setImgError] = useState(false)
+
+  useEffect(() => {
+    const timers = [
+      setTimeout(() => setStep(1), 300),
+      setTimeout(() => setStep(2), 750),
+      setTimeout(() => setStep(3), 1150),
+      setTimeout(() => setStep(4), 1600),
+      setTimeout(() => setStep(5), 2000),
+      setTimeout(() => setStep(6), 2400),
+      setTimeout(() => setStep(7), 2800),
+      setTimeout(() => setStep(8), 3300),
+    ]
+    return () => timers.forEach(clearTimeout)
+  }, [])
+
+  const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
+  const primary = colours?.primary || '#1a1a1a'
+  const textCol  = colours?.text    || '#ffffff'
+  const visibleFields = (fields || []).slice(0, 4)
+  const headerBg = step >= 1 ? primary : '#1c1c2a'
+
+  const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
+  const logoEl = logo_url && !imgError
+    ? <img src={logo_url} alt={brand_name} className="pass-logo" style={{ filter: logoFilter }} onError={() => setImgError(true)} />
+    : <div className="pass-logo-fallback" style={{ color: textCol }}>{brand_name?.[0]?.toUpperCase() || '?'}</div>
+
+  return (
+    <div className="pass-card pass-apple is-loading">
+      <div className="pass-header" style={{
+        background: headerBg,
+        color: textCol,
+        minHeight: 72,
+        transition: 'background 1.2s ease',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '18px 18px 14px',
+      }}>
+        <div style={show(step, 2)}>{logoEl}</div>
+        <div className="pass-brand" style={{ color: textCol, ...show(step, 3) }}>
+          <div className="pass-brand-name">{brand_name}</div>
+          <div className="pass-type-label">{pass_type}</div>
+        </div>
+      </div>
+      <div className="pass-body">
+        <div className="pass-fields">
+          {visibleFields.map((f, i) => (
+            <div key={i} className="pass-field" style={show(step, 4 + i)}>
+              <div className="pass-field-label">{f.label}</div>
+              <div className="pass-field-value">{f.value}</div>
+            </div>
+          ))}
+        </div>
+        {tagline && <div className="pass-tagline" style={show(step, 7)}>{tagline}</div>}
+      </div>
+      <div className="pass-footer">
+        <div className="qr-wrap" style={show(step, 8)}>
+          <div className="qr-box">
+            <QRCode fill="#1a1a1a" bgFill="#ffffff" />
+          </div>
+          <span className="qr-scan-label">Scan to activate</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function PassCard({ data, walletType = 'apple', isLoading = false, isRevealing = false }) {
   const [imgError, setImgError] = useState(false)
 
   if (isLoading || !data) {
     return (
       <div className="pass-card-wrap">
-        <SkeletonCard />
+        <LoadingCard />
+      </div>
+    )
+  }
+
+  if (isRevealing) {
+    return (
+      <div className="pass-card-wrap">
+        <RevealingCard data={data} />
       </div>
     )
   }
@@ -88,8 +204,9 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
   const secondary = colours?.secondary || '#ffffff'
   const textCol   = colours?.text      || '#ffffff'
 
-  const logoImg = logo_url && !imgError
-    ? <img src={logo_url} alt={brand_name} className="pass-logo" onError={() => setImgError(true)} />
+  const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
+  const logoEl = logo_url && !imgError
+    ? <img src={logo_url} alt={brand_name} className="pass-logo" style={{ filter: logoFilter }} onError={() => setImgError(true)} />
     : <div className="pass-logo-fallback" style={{ color: textCol }}>{brand_name?.[0]?.toUpperCase() || '?'}</div>
 
   const visibleFields = (fields || []).slice(0, 4)
@@ -99,7 +216,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
       <div className="pass-card-wrap">
         <div className="pass-card pass-apple is-loaded">
           <div className="pass-header" style={{ background: primary, color: textCol }}>
-            {logoImg}
+            {logoEl}
             <div className="pass-brand" style={{ color: textCol }}>
               <div className="pass-brand-name">{brand_name}</div>
               <div className="pass-type-label">{pass_type}</div>
@@ -108,11 +225,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
           <div className="pass-body">
             <div className="pass-fields">
               {visibleFields.map((f, i) => (
-                <div
-                  key={i}
-                  className="pass-field"
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                >
+                <div key={i} className="pass-field">
                   <div className="pass-field-label">{f.label}</div>
                   <div className="pass-field-value">{f.value}</div>
                 </div>
@@ -151,7 +264,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
         <div className="pass-body" style={{ background: secondary, padding: '14px 18px 12px' }}>
           <div className="pass-fields">
             {visibleFields.map((f, i) => (
-              <div key={i} className="pass-field" style={{ animationDelay: `${i * 0.1}s` }}>
+              <div key={i} className="pass-field">
                 <div className="pass-field-label" style={{ color: isLightSecondary ? '#86868b' : 'rgba(255,255,255,0.5)' }}>{f.label}</div>
                 <div className="pass-field-value" style={{ color: isLightSecondary ? '#1d1d1f' : '#fff' }}>{f.value}</div>
               </div>

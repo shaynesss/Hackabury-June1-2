@@ -1,6 +1,4 @@
 import os
-import asyncio
-from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -11,23 +9,7 @@ from gemini import analyse
 
 load_dotenv()
 
-
-def _prewarm():
-    try:
-        from bs4 import BeautifulSoup
-        from colorthief import ColorThief
-    except Exception:
-        pass
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    loop = asyncio.get_event_loop()
-    loop.run_in_executor(None, _prewarm)
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,

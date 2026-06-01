@@ -1,10 +1,12 @@
 #!/bin/bash
-set -e
 cd "$(dirname "$0")"
 
-# Clear macOS quarantine flags from venv on every launch
-# (new pip installs re-add the flag, causing 200s+ import delays)
+echo "Clearing macOS quarantine flags..."
+find venv -name "*.so" -print0 | xargs -0 xattr -d com.apple.quarantine 2>/dev/null || true
+find venv -name "*.dylib" -print0 | xargs -0 xattr -d com.apple.quarantine 2>/dev/null || true
 xattr -rd com.apple.quarantine venv 2>/dev/null || true
 
 source venv/bin/activate
-exec uvicorn main:app --reload --port 8000
+
+echo "Starting server..."
+exec uvicorn main:app --port 8000
