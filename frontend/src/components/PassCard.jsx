@@ -177,6 +177,7 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
 
   const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
   const primary  = colours?.primary || '#1a1a1a'
+  const secondary = colours?.secondary || '#f5f5f7'
   const textCol  = colours?.text    || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
   const headerBg = step >= 1 ? primary : '#1c1c2a'
@@ -205,7 +206,7 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
           <div className="pass-type-label">{pass_type}</div>
         </div>
       </div>
-      <div className="pass-body">
+      <div className="pass-body" style={{ background: secondary }}>
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field" style={show(step, 4 + i)}>
@@ -216,7 +217,7 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
         </div>
         {tagline && <div className="pass-tagline" style={show(step, 7)}>{tagline}</div>}
       </div>
-      <div className="pass-footer">
+      <div className="pass-footer" style={{ background: secondary }}>
         <div className="qr-wrap" style={show(step, 8)}>
           <div className="qr-box">
             <BarcodeDisplay type={barcodeType} />
@@ -245,6 +246,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
 
   const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
   const primary  = colours?.primary  || '#1a1a1a'
+  const secondary = colours?.secondary || '#f5f5f7'
   const textCol  = colours?.text     || '#ffffff'
   const isSvg = (logo_url || '').toLowerCase().endsWith('.svg')
   const logoFilter = isSvg && (textCol === '#ffffff' || textCol === '#fff') ? 'brightness(0) invert(1)' : 'none'
@@ -266,7 +268,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
               <div className="pass-type-label">{pass_type}</div>
             </div>
           </div>
-          <div className="pass-body">
+          <div className="pass-body" style={{ background: secondary }}>
             <div className="pass-fields">
               {visibleFields.map((f, i) => (
                 <div key={i} className="pass-field">
@@ -277,7 +279,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
             </div>
             {tagline && <div className="pass-tagline">{tagline}</div>}
           </div>
-          <div className="pass-footer">
+          <div className="pass-footer" style={{ background: secondary }}>
             <div className="qr-wrap">
               <div className="qr-box">
                 <BarcodeDisplay type={barcodeType} />
@@ -304,7 +306,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
           <div className="pass-brand-name" style={{ color: textCol, marginTop: 8 }}>{brand_name}</div>
           <div className="pass-type-label" style={{ color: textCol, opacity: 0.7 }}>{pass_type}</div>
         </div>
-        <div className="pass-body" style={{ background: '#ffffff', padding: '14px 18px 12px' }}>
+        <div className="pass-body" style={{ background: secondary, padding: '14px 18px 12px' }}>
           <div className="pass-fields">
             {visibleFields.map((f, i) => (
               <div key={i} className="pass-field">
@@ -315,7 +317,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
           </div>
           {tagline && <div className="pass-tagline" style={{ color: '#6e6e73' }}>{tagline}</div>}
         </div>
-        <div className="pass-footer" style={{ background: '#f5f5f7', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+        <div className="pass-footer" style={{ background: secondary, borderTop: '1px solid rgba(0,0,0,0.08)' }}>
           <div className="qr-wrap">
             <div className="qr-box">
               <BarcodeDisplay type={barcodeType} />

@@ -713,6 +713,21 @@ body {
   font-family: inherit;
   outline: none;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.6) 50%),
+    linear-gradient(135deg, rgba(255,255,255,0.6) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
+  box-shadow: none;
+}
+.edit-select:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 2px rgba(21,119,155,0.2);
 }
 .edit-select option { background: #0d1a2a; }
 
