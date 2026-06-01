@@ -124,9 +124,9 @@ async def scrape_page(url: str) -> dict:
 
     def meta(prop=None, name=None):
         tag = soup.find("meta", property=prop) if prop else soup.find("meta", attrs={"name": name})
-        return tag.get("content", "").strip() if tag else ""
+        return (tag.get("content") or "").strip() if tag else ""
 
-    title = meta(prop="og:title") or (soup.title.string.strip() if soup.title else domain)
+    title = meta(prop="og:title") or ((soup.title.string or "").strip() if soup.title else domain)
     description = meta(prop="og:description") or meta(name="description")
     theme_color = meta(name="theme-color") or None
     logo_url = _find_logo(soup, url)

@@ -1,5 +1,9 @@
+import asyncio
 import json
 import os
+
+from google import genai
+from google.genai import types
 
 _PASS_TYPES = ("Membership Card", "Event Pass", "Loyalty Card", "Supporter Card", "Member ID")
 
@@ -74,10 +78,6 @@ def _fallback(scraped: dict) -> dict:
 
 
 async def analyse(scraped: dict) -> dict:
-    import asyncio
-    from google import genai
-    from google.genai import types
-
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     prompt = _build_prompt(scraped)
 
