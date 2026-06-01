@@ -430,6 +430,15 @@ body {
   color: #86868b;
 }
 
+.qr-box {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ── WALLET TOGGLE ─────────────────────────────────── */
 .wallet-toggle {
   display: flex;
@@ -694,6 +703,62 @@ input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border2); bo
   font-family: inherit;
 }
 .btn-green:hover { opacity: 0.88; }
+
+/* ── BLOCKED SCREEN ────────────────────────────────── */
+.blocked-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 48px 24px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.blocked-badge {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.blocked-content { display: flex; flex-direction: column; gap: 10px; }
+
+.blocked-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.blocked-reason {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.blocked-notice {
+  background: rgba(21, 119, 155, 0.07);
+  border: 1px solid var(--border2);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.blocked-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
 
 /* ── CTA SCREEN ────────────────────────────────────── */
 .cta-screen {

@@ -122,7 +122,9 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
           </div>
           <div className="pass-footer">
             <div className="qr-wrap">
-              <QRCode fill={primary} bgFill="#f5f5f7" />
+              <div className="qr-box">
+                <QRCode fill="#1a1a1a" bgFill="#ffffff" />
+              </div>
               <span className="qr-scan-label">Scan to activate</span>
             </div>
           </div>
@@ -163,8 +165,10 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
         </div>
         <div className="pass-footer" style={{ background: secondary, borderTop: `1px solid ${isLightSecondary ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'}` }}>
           <div className="qr-wrap">
-            <QRCode fill={isLightSecondary ? primary : '#fff'} bgFill={secondary} />
-            <span className="qr-scan-label" style={{ color: isLightSecondary ? '#86868b' : 'rgba(255,255,255,0.4)' }}>
+            <div className="qr-box">
+              <QRCode fill="#1a1a1a" bgFill="#ffffff" />
+            </div>
+            <span className="qr-scan-label" style={{ color: isLightSecondary ? '#86868b' : 'rgba(255,255,255,0.5)' }}>
               Scan to activate
             </span>
           </div>

@@ -5,6 +5,7 @@ import PassCard from './components/PassCard'
 import InfoPanel from './components/InfoPanel'
 import EditPanel from './components/EditPanel'
 import CTAScreen from './components/CTAScreen'
+import BlockedScreen from './components/BlockedScreen'
 
 export default function App() {
   const [stage, setStage] = useState('entry')
@@ -28,7 +29,7 @@ export default function App() {
       const data = await scrape(url)
       if (data.error) throw new Error(data.error)
       setPassData(data)
-      setStage('result')
+      setStage(data.blocked ? 'blocked' : 'result')
     } catch (e) {
       setError(e.message)
       setStage('entry')
@@ -60,6 +61,18 @@ export default function App() {
           <PassCard data={null} walletType="apple" isLoading />
           <p className="loading-label">Analysing brand identity…</p>
         </div>
+      </div>
+    )
+  }
+
+  if (stage === 'blocked') {
+    return (
+      <div className="app">
+        <BlockedScreen
+          data={passData}
+          onPreview={() => setStage('result')}
+          onBack={() => { setPassData(null); setStage('entry') }}
+        />
       </div>
     )
   }

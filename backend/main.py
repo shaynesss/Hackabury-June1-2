@@ -14,8 +14,6 @@ load_dotenv()
 
 def _prewarm():
     try:
-        from google import genai
-        from google.genai import types
         from bs4 import BeautifulSoup
         from colorthief import ColorThief
     except Exception:
@@ -56,4 +54,9 @@ async def scrape(req: ScrapeRequest):
     t1 = time.time()
     result = await analyse(scraped)
     print(f"[gemini] {time.time()-t1:.2f}s  [total] {time.time()-t0:.2f}s")
+
+    if scraped.get("blocked"):
+        result["blocked"] = True
+        result["block_reason"] = scraped.get("block_reason", "unknown")
+
     return result

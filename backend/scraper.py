@@ -1,5 +1,5 @@
 import httpx
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 _HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -16,42 +16,136 @@ def _to_hex(rgb: tuple) -> str:
     return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 
+def _find_logo(soup, base_url: str) -> str | None:
+    def rel_list(tag):
+        r = tag.get("rel") or []
+        return r.split() if isinstance(r, str) else r
+
+    # 1. apple-touch-icon — high-res square, best for a pass logo
+    for tag in soup.find_all("link"):
+        if any("apple-touch-icon" in r for r in rel_list(tag)):
+            href = tag.get("href", "").strip()
+            if href:
+                return urljoin(base_url, href)
+
+    # 2. largest icon by sizes attribute (prefer 192x192, 96x96 etc over 16x16)
+    best_href, best_size = None, 0
+    for tag in soup.find_all("link"):
+        if not any("icon" in r for r in rel_list(tag)):
+            continue
+        href = tag.get("href", "").strip()
+        if not href:
+            continue
+        try:
+            w = int(tag.get("sizes", "0x0").split("x")[0])
+        except Exception:
+            w = 1
+        if w > best_size:
+            best_size, best_href = w, href
+    if best_href:
+        return urljoin(base_url, best_href)
+
+    # 3. any icon link
+    for tag in soup.find_all("link"):
+        if any("icon" in r for r in rel_list(tag)):
+            href = tag.get("href", "").strip()
+            if href:
+                return urljoin(base_url, href)
+
+    # 4. og:image (social share image — not ideal but better than nothing)
+    og = soup.find("meta", property="og:image")
+    if og and og.get("content"):
+        return og["content"].strip()
+
+    return None
+
+
+def _block_reason(resp, html: str) -> str | None:
+    if resp.status_code == 429:
+        return "rate_limited"
+
+    h = {k.lower(): v for k, v in resp.headers.items()}
+    low = html.lower()
+
+    # Cloudflare — cf-ray header is definitive
+    if "cf-ray" in h or "cloudflare" in h.get("server", "").lower():
+        if any(s in low for s in ["just a moment", "checking your browser", "enable javascript and cookies"]):
+            return "cloudflare"
+
+    # Imperva / Incapsula
+    if "x-iinfo" in h:
+        return "bot_wall"
+    if any(s in low for s in ["pardon our interruption", "isimpervaspasupport", "_imperva_"]):
+        return "bot_wall"
+
+    # Generic bot walls (DataDome, PerimeterX, etc.)
+    if any(s in low for s in ["robot or human", "automated access", "access denied", "security check"]):
+        return "bot_wall"
+
+    # Captcha
+    if any(s in low for s in ["recaptcha", "hcaptcha", "/captcha"]):
+        return "captcha"
+
+    # Empty / JS-only SPA
+    if len(html.strip()) < 1000:
+        return "empty_page"
+
+    return None
+
+
 async def scrape_page(url: str) -> dict:
     from bs4 import BeautifulSoup
     from colorthief import ColorThief
     from io import BytesIO
+
+    domain = urlparse(url).netloc.replace("www.", "")
+
     async with httpx.AsyncClient(follow_redirects=True, timeout=10) as client:
         resp = await client.get(url, headers=_HEADERS)
+
         if resp.status_code == 403:
-            from urllib.parse import urlparse
-            domain = urlparse(url).netloc.replace("www.", "")
-            return {"title": domain, "description": "", "logo_url": None, "theme_color": None, "body_text": f"Brand: {domain}. Site blocked scraping — use your knowledge of this brand to generate realistic pass fields.", "image_colors": [], "blocked": True}
+            return {
+                "title": domain,
+                "description": "",
+                "logo_url": None,
+                "theme_color": None,
+                "body_text": f"Brand: {domain}. Site blocked scraping — use your knowledge of this brand to generate realistic pass fields.",
+                "image_colors": [],
+                "blocked": True,
+                "block_reason": "forbidden",
+            }
+
         resp.raise_for_status()
 
-    soup = BeautifulSoup(resp.text, "html.parser")
+    html = resp.text
+    reason = _block_reason(resp, html)
 
-    def meta(prop: str | None = None, name: str | None = None) -> str:
-        tag = (
-            soup.find("meta", property=prop)
-            if prop
-            else soup.find("meta", attrs={"name": name})
-        )
+    soup = BeautifulSoup(html, "html.parser")
+
+    def meta(prop=None, name=None):
+        tag = soup.find("meta", property=prop) if prop else soup.find("meta", attrs={"name": name})
         return tag.get("content", "").strip() if tag else ""
 
-    title = meta(prop="og:title") or (soup.title.string.strip() if soup.title else "")
+    title = meta(prop="og:title") or (soup.title.string.strip() if soup.title else domain)
     description = meta(prop="og:description") or meta(name="description")
-    logo_url: str | None = meta(prop="og:image") or None
-    theme_color: str | None = meta(name="theme-color") or None
-
-    if not logo_url:
-        favicon = soup.find("link", rel=lambda x: x and "icon" in x)
-        if favicon:
-            href = favicon.get("href", "")
-            logo_url = urljoin(url, href) if href else None
+    theme_color = meta(name="theme-color") or None
+    logo_url = _find_logo(soup, url)
 
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
     body_text = " ".join(soup.get_text(" ", strip=True).split())[:800]
+
+    if reason:
+        return {
+            "title": title or domain,
+            "description": description,
+            "logo_url": None,
+            "theme_color": theme_color,
+            "body_text": f"Brand: {domain}. Site uses bot protection — use your knowledge of this brand to generate realistic pass fields.",
+            "image_colors": [],
+            "blocked": True,
+            "block_reason": reason,
+        }
 
     image_colors: list[str] = []
     if logo_url:
