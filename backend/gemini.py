@@ -66,19 +66,29 @@ def _validate(data: dict) -> dict:
 
 
 def _fallback(scraped: dict) -> dict:
+    brand_name = scraped.get("title") or ""
     return {
-        "brand_name": scraped.get("title") or "",
+        "brand_name": brand_name,
         "logo_url": scraped.get("logo_url"),
         "colours": _FALLBACK_COLOURS,
         "pass_type": "Membership Card",
-        "fields": [],
-        "tagline": "",
+        "fields": [
+            {"label": "Member", "value": brand_name or "Member"},
+            {"label": "ID", "value": "000-123-456"},
+            {"label": "Tier", "value": "Standard"},
+            {"label": "Expires", "value": "Dec 2026"},
+        ],
+        "tagline": "Member pass",
         "confidence_score": 0.0,
     }
 
 
 async def analyse(scraped: dict) -> dict:
-    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return _fallback(scraped)
+
+    client = genai.Client(api_key=api_key)
     prompt = _build_prompt(scraped)
 
     try:

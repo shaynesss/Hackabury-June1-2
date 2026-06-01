@@ -94,7 +94,21 @@ function show(step, threshold) {
   }
 }
 
-function LoadingCard() {
+function clampTitle(value) {
+  if (!value) return ''
+  const words = String(value).trim().split(/\s+/).filter(Boolean).slice(0, 2)
+  const joined = words.join(' ').slice(0, 18)
+  return joined.trim()
+}
+
+function clampField(value) {
+  if (!value) return ''
+  const words = String(value).trim().split(/\s+/).filter(Boolean).slice(0, 2)
+  const joined = words.join(' ').slice(0, 18)
+  return joined.trim()
+}
+
+function LoadingCard({ walletType = 'apple' }) {
   const [step, setStep] = useState(0)
   const [phase, setPhase] = useState(0)
 
@@ -110,7 +124,7 @@ function LoadingCard() {
   }, [phase])
 
   return (
-    <div className="pass-card is-loading" style={{ background: '#152237' }}>
+    <div className={`pass-card is-loading wallet-${walletType}`} style={{ background: '#152237' }}>
       <div className="pass-top" style={show(step, 2)}>
         <div className="skeleton skel-white" style={{ width: 80, height: 11, borderRadius: 4 }} />
       </div>
@@ -136,7 +150,7 @@ function LoadingCard() {
   )
 }
 
-function RevealingCard({ data, barcodeType = 'qr' }) {
+function RevealingCard({ data, barcodeType = 'qr', walletType = 'apple' }) {
   const [step, setStep] = useState(0)
 
   useEffect(() => {
@@ -153,34 +167,41 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
     return () => timers.forEach(clearTimeout)
   }, [])
 
-  const { brand_name, logo_url, colours, pass_type, fields } = data
+  const { brand_name, logo_url, colours, pass_type, fields, image_url } = data
+  const displayBrand = clampTitle(brand_name)
+  const displayType = clampTitle(pass_type)
   const primary = colours?.primary || '#2d5a8e'
   const textColor = colours?.text || '#ffffff'
   const secondaryColor = colours?.secondary || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
 
   return (
-    <div className="pass-card is-loading" style={{ background: primary, opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.4s ease', '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
+    <div className={`pass-card is-loading wallet-${walletType}`} style={{ background: primary, opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.4s ease', '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
       <div className="pass-top" style={show(step, 2)}>
         {logo_url && <img className="pass-logo-img" src={logo_url} alt="" onError={e => { e.target.style.display = 'none' }} />}
-        <span className="pass-company">{brand_name}</span>
+        <span className="pass-company">{displayBrand}</span>
       </div>
       <div className="pass-divider" style={{ opacity: step >= 2 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
       <div className="pass-body">
         <div style={show(step, 3)}>
-          <div className="pass-type-heading">{pass_type}</div>
+          <div className="pass-type-heading">{displayType}</div>
         </div>
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field" style={show(step, 4 + i)}>
-              <div className="pass-field-label">{f.label}</div>
-              <div className="pass-field-value">{f.value}</div>
+              <div className="pass-field-label">{clampField(f.label)}</div>
+              <div className="pass-field-value">{clampField(f.value)}</div>
             </div>
           ))}
         </div>
       </div>
       <div className="pass-divider" style={{ opacity: step >= 7 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
       <div className="pass-footer" style={show(step, 8)}>
+        {image_url && (
+          <div className="pass-image-wrap">
+            <img className="pass-image" src={image_url} alt="" />
+          </div>
+        )}
         <div className="barcode-box">
           <BarcodeDisplay type={barcodeType} />
         </div>
@@ -189,33 +210,40 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
   )
 }
 
-function StaticCard({ data, barcodeType = 'qr', className = '' }) {
-  const { brand_name, logo_url, colours, pass_type, fields } = data
+function StaticCard({ data, barcodeType = 'qr', className = '', walletType = 'apple' }) {
+  const { brand_name, logo_url, colours, pass_type, fields, image_url } = data
+  const displayBrand = clampTitle(brand_name)
+  const displayType = clampTitle(pass_type)
   const primary = colours?.primary || '#2d5a8e'
   const textColor = colours?.text || '#ffffff'
   const secondaryColor = colours?.secondary || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
 
   return (
-    <div className={`pass-card ${className}`} style={{ background: primary, '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
+    <div className={`pass-card ${className} wallet-${walletType}`} style={{ background: primary, '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
       <div className="pass-top">
         {logo_url && <img className="pass-logo-img" src={logo_url} alt="" onError={e => { e.target.style.display = 'none' }} />}
-        <span className="pass-company">{brand_name}</span>
+        <span className="pass-company">{displayBrand}</span>
       </div>
       <div className="pass-divider" />
       <div className="pass-body">
-        <div className="pass-type-heading">{pass_type}</div>
+        <div className="pass-type-heading">{displayType}</div>
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field">
-              <div className="pass-field-label">{f.label}</div>
-              <div className="pass-field-value">{f.value}</div>
+              <div className="pass-field-label">{clampField(f.label)}</div>
+              <div className="pass-field-value">{clampField(f.value)}</div>
             </div>
           ))}
         </div>
       </div>
       <div className="pass-divider" />
       <div className="pass-footer">
+        {image_url && (
+          <div className="pass-image-wrap">
+            <img className="pass-image" src={image_url} alt="" />
+          </div>
+        )}
         <div className="barcode-box">
           <BarcodeDisplay type={barcodeType} />
         </div>
@@ -224,20 +252,20 @@ function StaticCard({ data, barcodeType = 'qr', className = '' }) {
   )
 }
 
-export default function PassCard({ data, isLoading = false, isRevealing = false, barcodeType = 'qr' }) {
+export default function PassCard({ data, isLoading = false, isRevealing = false, barcodeType = 'qr', walletType = 'apple' }) {
   if (isLoading || !data) {
-    return <div className="pass-card-wrap"><LoadingCard /></div>
+    return <div className="pass-card-wrap"><LoadingCard walletType={walletType} /></div>
   }
   if (isRevealing) {
     return (
       <div className="pass-card-wrap">
-        <RevealingCard data={data} barcodeType={barcodeType} />
+        <RevealingCard data={data} barcodeType={barcodeType} walletType={walletType} />
       </div>
     )
   }
   return (
     <div className="pass-card-wrap">
-      <StaticCard data={data} barcodeType={barcodeType} className="is-loaded" />
+      <StaticCard data={data} barcodeType={barcodeType} className="is-loaded" walletType={walletType} />
     </div>
   )
 }

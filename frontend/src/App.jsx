@@ -30,12 +30,13 @@ export default function App() {
   const [passData, setPassData] = useState(null)
   const [isRevealing, setIsRevealing] = useState(false)
   const [barcodeType, setBarcodeType] = useState('qr')
-  const [walletType, setWalletType] = useState(null)
+  const [walletType, setWalletType] = useState('apple')
   const [error, setError] = useState(null)
 
   function handleDemo() {
     setError(null)
     setPassData(MOCK_DATA)
+    setWalletType('apple')
     setIsRevealing(true)
     setStage('loading')
     setTimeout(() => {
@@ -48,6 +49,7 @@ export default function App() {
     setError(null)
     setPassData(null)
     setIsRevealing(false)
+    setWalletType('apple')
     setStage('loading')
     try {
       const data = await scrape(url)
@@ -66,12 +68,7 @@ export default function App() {
 
   function handlePickWallet(type) {
     setWalletType(type)
-    setStage('result')
-  }
-
-  function handleEditDone(updated) {
-    setPassData(updated)
-    setStage('result')
+    setStage('edit')
   }
 
   function handleSend(updated) {
@@ -98,6 +95,7 @@ export default function App() {
                 isLoading={!passData}
                 isRevealing={isRevealing}
                 barcodeType={barcodeType}
+                walletType="apple"
               />
               <span className="loading-card-label">
                 <AppleIcon /> Apple Wallet
@@ -109,6 +107,7 @@ export default function App() {
                 isLoading={!passData}
                 isRevealing={isRevealing}
                 barcodeType={barcodeType}
+                walletType="google"
               />
               <span className="loading-card-label">
                 <GoogleIcon /> Google Wallet
@@ -128,7 +127,7 @@ export default function App() {
       <div className="app">
         <BlockedScreen
           data={passData}
-          onPreview={() => setStage('result')}
+          onPreview={() => setStage('edit')}
           onBack={() => { setPassData(null); setStage('entry') }}
         />
       </div>
@@ -142,38 +141,17 @@ export default function App() {
           <p className="pick-heading">Choose your wallet format</p>
           <div className="loading-cards-row">
             <div className="loading-card-slot loading-card-slot--pick" onClick={() => handlePickWallet('apple')}>
-              <PassCard data={passData} barcodeType={barcodeType} />
+              <PassCard data={passData} barcodeType={barcodeType} walletType="apple" />
               <span className="loading-card-label pick-label">
                 <AppleIcon /> Apple Wallet
               </span>
             </div>
             <div className="loading-card-slot loading-card-slot--pick" onClick={() => handlePickWallet('google')}>
-              <PassCard data={passData} barcodeType={barcodeType} />
+              <PassCard data={passData} barcodeType={barcodeType} walletType="google" />
               <span className="loading-card-label pick-label">
                 <GoogleIcon /> Google Wallet
               </span>
             </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (stage === 'result') {
-    return (
-      <div className="app">
-        <div className="stage-result">
-          <div className="barcode-toggle">
-            <button className={barcodeType === 'qr' ? 'active' : ''} onClick={() => setBarcodeType('qr')}>QR Code</button>
-            <button className={barcodeType === 'barcode' ? 'active' : ''} onClick={() => setBarcodeType('barcode')}>Barcode</button>
-            <button className={barcodeType === 'pdf417' ? 'active' : ''} onClick={() => setBarcodeType('pdf417')}>Barcode #2</button>
-          </div>
-          <PassCard data={passData} barcodeType={barcodeType} />
-          <div className="result-actions">
-            <button className="btn-finish" onClick={() => setStage('edit')}>Edit Pass</button>
-            <button className="btn-secondary" onClick={() => { setPassData(null); setStage('entry') }}>
-              Try Another URL
-            </button>
           </div>
         </div>
       </div>
@@ -185,11 +163,12 @@ export default function App() {
       <div className="app" style={{ alignItems: 'flex-start' }}>
         <EditPanel
           data={passData}
-          onDone={handleEditDone}
           onSend={handleSend}
-          onBack={() => setStage('result')}
+          onRestart={() => { setPassData(null); setStage('entry') }}
           barcodeType={barcodeType}
           onBarcodeTypeChange={setBarcodeType}
+          walletType={walletType}
+          onWalletTypeChange={setWalletType}
         />
       </div>
     )
@@ -198,7 +177,12 @@ export default function App() {
   if (stage === 'cta') {
     return (
       <div className="app">
-        <CTAScreen data={passData} onBack={() => setStage('edit')} />
+        <CTAScreen
+          data={passData}
+          onBack={() => setStage('edit')}
+          barcodeType={barcodeType}
+          walletType={walletType}
+        />
       </div>
     )
   }

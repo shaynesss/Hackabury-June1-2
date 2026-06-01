@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import PassCard from './PassCard'
 
-export default function CTAScreen({ data, onBack }) {
+export default function CTAScreen({ data, onBack, barcodeType = 'qr', walletType = 'apple' }) {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
 
@@ -14,7 +14,7 @@ export default function CTAScreen({ data, onBack }) {
   return (
     <div className="cta-screen">
       <div className="cta-pass-mini">
-        <PassCard data={data} walletType="apple" />
+        <PassCard data={data} walletType={walletType} barcodeType={barcodeType} />
       </div>
 
       <div>

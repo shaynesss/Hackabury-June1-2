@@ -319,6 +319,17 @@ body {
     0 24px 64px rgba(0,0,0,0.6);
   position: relative;
   transform-origin: center;
+  display: flex;
+  flex-direction: column;
+  min-height: 460px;
+}
+
+.pass-card.wallet-apple {
+  min-height: 460px;
+}
+
+.pass-card.wallet-google {
+  min-height: 520px;
 }
 
 .pass-card.is-loading {
@@ -430,8 +441,26 @@ body {
 
 .pass-footer {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   justify-content: center;
   padding: 12px 18px 16px;
+  margin-top: auto;
+}
+
+.pass-image-wrap {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.pass-image {
+  display: block;
+  width: 100%;
+  height: 92px;
+  object-fit: cover;
 }
 
 .barcode-box {
@@ -514,6 +543,10 @@ body {
 }
 
 .wallet-icon { flex-shrink: 0; }
+
+.edit-wallet-toggle {
+  margin-bottom: 12px;
+}
 
 /* ── BARCODE TOGGLE ────────────────────────────────── */
 .barcode-toggle {
@@ -612,6 +645,12 @@ body {
   align-items: start;
 }
 
+.edit-left-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .edit-panel {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -708,7 +747,52 @@ body {
 }
 .edit-select-pill option { background: #0d1a2a; }
 
+.edit-upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,0.25);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.edit-upload:hover {
+  border-color: rgba(255,255,255,0.5);
+  color: #ffffff;
+  background: rgba(255,255,255,0.03);
+}
+
+.edit-upload-input {
+  display: none;
+}
+
 .edit-back-link { margin-top: 4px; }
+
+.btn-back {
+  width: 100%;
+  padding: 12px 24px;
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+
+.btn-back:hover {
+  border-color: #ffffff;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 
 /* ── COLOUR SWATCHES ───────────────────────────────── */
 .colour-swatch-row {
