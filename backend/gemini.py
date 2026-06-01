@@ -1,0 +1,99 @@
+import json
+import os
+
+_PASS_TYPES = ("Membership Card", "Event Pass", "Loyalty Card", "Supporter Card", "Member ID")
+
+_FALLBACK_COLOURS = {"primary": "#1a1a1a", "secondary": "#ffffff", "text": "#ffffff"}
+
+_PROMPT = """\
+You are a digital pass design expert. Produce a JSON object for a digital wallet pass preview.
+
+## Website Data
+Title: {title}
+Description: {description}
+Logo URL: {logo_url}
+Theme colour: {theme_color}
+Dominant image colours: {image_colors}
+Body text snippet: {body_text}
+
+## Instructions
+1. Infer brand_name from the title and body text. If the body text says "use your knowledge", rely on what you know about that brand.
+2. Set logo_url to the provided Logo URL if it looks like a valid image (png, jpg, webp, svg, ico), otherwise null.
+3. Choose primary, secondary, and text hex colours that match this brand. Use the theme/image colours if available; otherwise use your knowledge of the brand's real colours.
+4. Classify pass_type as exactly one of: "Membership Card", "Event Pass", "Loyalty Card", "Supporter Card", "Member ID".
+5. Produce exactly 4 field objects with realistic label and value pairs for this brand (e.g. Member ID, Tier, Points, Expiry, Store, Club). Use your knowledge of the brand if scraped data is sparse.
+6. Write a tagline of at most 8 words capturing what this pass represents.
+7. Set confidence_score between 0.0 and 1.0 reflecting extraction quality.
+
+Return ONLY a JSON object with exactly these keys:
+{{
+  "brand_name": "string",
+  "logo_url": "string or null",
+  "colours": {{"primary": "#hex", "secondary": "#hex", "text": "#hex"}},
+  "pass_type": "one of the five types",
+  "fields": [{{"label": "string", "value": "string"}}],
+  "tagline": "string",
+  "confidence_score": 0.0
+}}
+"""
+
+
+def _build_prompt(scraped: dict) -> str:
+    return _PROMPT.format(
+        title=scraped.get("title") or "(none)",
+        description=scraped.get("description") or "(none)",
+        logo_url=scraped.get("logo_url") or "(none)",
+        theme_color=scraped.get("theme_color") or "(none)",
+        image_colors=", ".join(scraped.get("image_colors") or []) or "(none)",
+        body_text=scraped.get("body_text") or "(none)",
+    )
+
+
+def _validate(data: dict) -> dict:
+    required = {"brand_name", "logo_url", "colours", "pass_type", "fields", "tagline", "confidence_score"}
+    if not required.issubset(data.keys()):
+        raise ValueError(f"missing keys: {required - data.keys()}")
+    colours = data["colours"]
+    if not {"primary", "secondary", "text"}.issubset(colours.keys()):
+        raise ValueError("missing colour keys")
+    if data["pass_type"] not in _PASS_TYPES:
+        raise ValueError(f"invalid pass_type: {data['pass_type']}")
+    return data
+
+
+def _fallback(scraped: dict) -> dict:
+    return {
+        "brand_name": scraped.get("title") or "",
+        "logo_url": scraped.get("logo_url"),
+        "colours": _FALLBACK_COLOURS,
+        "pass_type": "Membership Card",
+        "fields": [],
+        "tagline": "",
+        "confidence_score": 0.0,
+    }
+
+
+async def analyse(scraped: dict) -> dict:
+    import asyncio
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    prompt = _build_prompt(scraped)
+
+    try:
+        response = await asyncio.wait_for(
+            client.aio.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),
+                ),
+            ),
+            timeout=25,
+        )
+        data = json.loads(response.text)
+        return _validate(data)
+    except Exception:
+        return _fallback(scraped)
