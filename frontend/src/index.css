@@ -405,16 +405,24 @@ body {
 
 /* ── GOOGLE WALLET PASS ────────────────────────────── */
 .pass-google .pass-header {
-  padding: 20px 18px 18px;
+  padding: 20px 18px 16px;
   min-height: 110px;
 }
 
-.pass-google .pass-logo,
+.pass-google-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  display: block;
+}
+
 .pass-google .pass-logo-fallback {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 2px;
 }
 
 .pass-google .pass-brand-name {
@@ -473,11 +481,48 @@ body {
   cursor: pointer;
   transition: all 0.15s;
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 .wallet-toggle button.active {
   background: var(--teal);
   color: white;
+  font-weight: 600;
+}
+
+.wallet-icon { flex-shrink: 0; }
+
+/* ── BARCODE TOGGLE ────────────────────────────────── */
+.barcode-toggle {
+  display: flex;
+  background: rgba(21,119,155,0.05);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+  width: 100%;
+}
+
+.barcode-toggle button {
+  flex: 1;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.barcode-toggle button.active {
+  background: rgba(21,119,155,0.2);
+  color: var(--teal-light);
   font-weight: 600;
 }
 
