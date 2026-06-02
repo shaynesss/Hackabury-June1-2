@@ -1,4 +1,5 @@
 from urllib.parse import urljoin, urlparse
+import base64
 
 _HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -108,6 +109,8 @@ async def scrape_page(url: str) -> dict:
                 "title": domain,
                 "description": "",
                 "logo_url": None,
+                "logo_b64": None,
+                "strip_image_url": None,
                 "theme_color": None,
                 "body_text": f"Brand: {domain}. Site blocked scraping — use your knowledge of this brand to generate realistic pass fields.",
                 "image_colors": [],
@@ -131,6 +134,17 @@ async def scrape_page(url: str) -> dict:
     theme_color = meta(name="theme-color") or None
     logo_url = _find_logo(soup, url)
 
+    # Find best og:image — prefer absolute URLs when multiple tags exist
+    og_image_url = None
+    for tag in soup.find_all("meta", property="og:image"):
+        content = (tag.get("content") or "").strip()
+        if not content:
+            continue
+        resolved = content if content.startswith("http") else urljoin(url, content)
+        if resolved.startswith("http") and len(resolved) > 20:
+            og_image_url = resolved
+            break
+
     for tag in soup(["script", "style", "noscript"]):
         tag.decompose()
     body_text = " ".join(soup.get_text(" ", strip=True).split())[:800]
@@ -140,6 +154,8 @@ async def scrape_page(url: str) -> dict:
             "title": title or domain,
             "description": description,
             "logo_url": None,
+            "logo_b64": None,
+            "strip_image_url": None,
             "theme_color": theme_color,
             "body_text": f"Brand: {domain}. Site uses bot protection — use your knowledge of this brand to generate realistic pass fields.",
             "image_colors": [],
@@ -148,21 +164,31 @@ async def scrape_page(url: str) -> dict:
         }
 
     image_colors: list[str] = []
+    logo_b64 = None
+
     if logo_url:
         try:
-            async with httpx.AsyncClient(follow_redirects=True, timeout=3) as client:
-                img_resp = await client.get(logo_url, headers=_HEADERS)
-            if len(img_resp.content) < 200_000:
-                ct = ColorThief(BytesIO(img_resp.content))
-                palette = ct.get_palette(color_count=3, quality=1)
-                image_colors = [_to_hex(c) for c in palette]
+            async with httpx.AsyncClient(follow_redirects=True, timeout=4) as client:
+                r = await client.get(logo_url, headers=_HEADERS)
+            content = r.content
+            if 50 < len(content) < 500_000:
+                mime = r.headers.get("content-type", "image/png").split(";")[0].strip()
+                logo_b64 = f"data:{mime};base64,{base64.b64encode(content).decode()}"
+                if "svg" not in mime:
+                    palette = ColorThief(BytesIO(content)).get_palette(color_count=3, quality=1)
+                    image_colors = [_to_hex(c) for c in palette]
         except Exception:
             pass
+
+    # Only use og:image as strip when it's a different (wider) image than the logo
+    strip_image_url = og_image_url if og_image_url and og_image_url != logo_url else None
 
     return {
         "title": title,
         "description": description,
         "logo_url": logo_url,
+        "logo_b64": logo_b64,
+        "strip_image_url": strip_image_url,
         "theme_color": theme_color,
         "body_text": body_text,
         "image_colors": image_colors,

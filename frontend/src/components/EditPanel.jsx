@@ -14,6 +14,7 @@ export default function EditPanel({ data, onDone, onSend, onBack }) {
     ...data,
     colours: { ...data.colours },
     fields: data.fields.map(f => ({ ...f })),
+    show_strip: data.show_strip ?? false,
   })
   const [walletType, setWalletType] = useState('apple')
 
@@ -61,6 +62,24 @@ export default function EditPanel({ data, onDone, onSend, onBack }) {
             </select>
           </div>
         </div>
+
+        {data.strip_image && (
+          <div className="edit-section">
+            <div className="edit-section-title">Header Image</div>
+            <label className="edit-toggle-row">
+              <input
+                type="checkbox"
+                className="edit-toggle-check"
+                checked={!!draft.show_strip}
+                onChange={e => set('show_strip', e.target.checked)}
+              />
+              <span className="edit-toggle-label">Show banner image on card</span>
+            </label>
+            {draft.show_strip && (
+              <img src={data.strip_image} alt="" className="edit-strip-preview" />
+            )}
+          </div>
+        )}
 
         <div className="edit-section">
           <div className="edit-section-title">Colours</div>

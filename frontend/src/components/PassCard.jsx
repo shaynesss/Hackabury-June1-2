@@ -175,7 +175,7 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
     return () => timers.forEach(clearTimeout)
   }, [])
 
-  const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
+  const { brand_name, logo_url, colours, pass_type, fields, tagline, strip_image, show_strip } = data
   const primary  = colours?.primary || '#1a1a1a'
   const textCol  = colours?.text    || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
@@ -204,6 +204,11 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
           <div className="pass-type-label">{pass_type}</div>
         </div>
       </div>
+      {show_strip && strip_image && (
+        <div className="pass-strip" style={show(step, 3)}>
+          <img src={strip_image} alt="" className="pass-strip-img" onError={e => { e.target.parentElement.style.display = 'none' }} />
+        </div>
+      )}
       <div className="pass-body">
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
@@ -242,7 +247,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
     )
   }
 
-  const { brand_name, logo_url, colours, pass_type, fields, tagline } = data
+  const { brand_name, logo_url, colours, pass_type, fields, tagline, strip_image, show_strip } = data
   const primary  = colours?.primary  || '#1a1a1a'
   const textCol  = colours?.text     || '#ffffff'
   const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
@@ -252,6 +257,9 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
     : <div className="pass-logo-fallback" style={{ color: textCol }}>{brand_name?.[0]?.toUpperCase() || '?'}</div>
 
   const visibleFields = (fields || []).slice(0, 4)
+  const stripEl = show_strip && strip_image
+    ? <div className="pass-strip"><img src={strip_image} alt="" className="pass-strip-img" onError={e => { e.target.parentElement.style.display = 'none' }} /></div>
+    : null
 
   if (walletType === 'apple') {
     return (
@@ -264,6 +272,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
               <div className="pass-type-label">{pass_type}</div>
             </div>
           </div>
+          {stripEl}
           <div className="pass-body">
             <div className="pass-fields">
               {visibleFields.map((f, i) => (
@@ -302,6 +311,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
           <div className="pass-brand-name" style={{ color: textCol, marginTop: 8 }}>{brand_name}</div>
           <div className="pass-type-label" style={{ color: textCol, opacity: 0.7 }}>{pass_type}</div>
         </div>
+        {stripEl}
         <div className="pass-body" style={{ background: '#ffffff', padding: '14px 18px 12px' }}>
           <div className="pass-fields">
             {visibleFields.map((f, i) => (
