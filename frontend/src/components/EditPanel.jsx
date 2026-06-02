@@ -72,6 +72,14 @@ export default function EditPanel({
     reader.readAsDataURL(file)
   }
 
+  function handleIconUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => set('logo_url', reader.result)
+    reader.readAsDataURL(file)
+  }
+
   function handleFinish() {
     onSend(draft)
   }
@@ -158,6 +166,19 @@ export default function EditPanel({
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="edit-panel">
+            <div className="edit-panel-title">Card Icon</div>
+            <label className="edit-upload">
+              <input
+                className="edit-upload-input"
+                type="file"
+                accept="image/*"
+                onChange={handleIconUpload}
+              />
+              <span>{draft.logo_url ? 'Replace icon' : 'Upload icon'}</span>
+            </label>
           </div>
 
           <div className="edit-panel">

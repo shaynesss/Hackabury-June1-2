@@ -86,6 +86,7 @@ def _fallback(scraped: dict) -> dict:
 async def analyse(scraped: dict) -> dict:
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
+        print("[gemini] GEMINI_API_KEY missing, using fallback")
         return _fallback(scraped)
 
     client = genai.Client(api_key=api_key)
@@ -105,5 +106,6 @@ async def analyse(scraped: dict) -> dict:
         )
         data = json.loads(response.text)
         return _validate(data)
-    except Exception:
+    except Exception as exc:
+        print(f"[gemini] error={exc.__class__.__name__} message={exc} using fallback")
         return _fallback(scraped)
