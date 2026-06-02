@@ -194,14 +194,14 @@ function RevealingCard({ data, barcodeType = 'qr', walletType = 'apple' }) {
       </div>
       <div className="pass-divider" style={{ opacity: step >= 2 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
       <div className="pass-body">
-        <div style={show(step, 3)}>
-          <div className="pass-type-heading">{displayType}</div>
-        </div>
         {imagePosition === 'top' && imageMarkup && (
-          <div style={show(step, 4)}>
+          <div style={show(step, 3)}>
             {imageMarkup}
           </div>
         )}
+        <div style={show(step, 4)}>
+          <div className="pass-type-heading">{displayType}</div>
+        </div>
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field" style={show(step, 4 + i)}>
@@ -246,8 +246,8 @@ function StaticCard({ data, barcodeType = 'qr', className = '', walletType = 'ap
       </div>
       <div className="pass-divider" />
       <div className="pass-body">
-        <div className="pass-type-heading">{displayType}</div>
         {imagePosition === 'top' && imageMarkup}
+        <div className="pass-type-heading">{displayType}</div>
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field">
