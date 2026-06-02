@@ -472,6 +472,12 @@ body {
   justify-content: center;
 }
 
+.barcode-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 /* ── SKELETON ──────────────────────────────────────── */
 .skeleton {
   background: linear-gradient(

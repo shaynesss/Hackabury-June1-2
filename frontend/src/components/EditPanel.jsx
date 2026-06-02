@@ -138,6 +138,33 @@ export default function EditPanel({
               </select>
             </div>
           </div>
+
+          <div className="edit-panel">
+            <div className="edit-panel-title">Card Icon</div>
+            <label className="edit-upload">
+              <input
+                className="edit-upload-input"
+                type="file"
+                accept="image/*"
+                onChange={handleIconUpload}
+              />
+              <span>{draft.logo_url ? 'Replace icon' : 'Upload icon'}</span>
+            </label>
+          </div>
+
+          <div className="edit-panel">
+            <div className="edit-panel-title">Card Image</div>
+            <label className="edit-upload">
+              <input
+                className="edit-upload-input"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+              <span>{draft.image_url ? 'Replace image' : 'Upload image'}</span>
+            </label>
+          </div>
+
           <button className="btn-back" onClick={onRestart} type="button">
             Restart
           </button>
@@ -166,32 +193,6 @@ export default function EditPanel({
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="edit-panel">
-            <div className="edit-panel-title">Card Icon</div>
-            <label className="edit-upload">
-              <input
-                className="edit-upload-input"
-                type="file"
-                accept="image/*"
-                onChange={handleIconUpload}
-              />
-              <span>{draft.logo_url ? 'Replace icon' : 'Upload icon'}</span>
-            </label>
-          </div>
-
-          <div className="edit-panel">
-            <div className="edit-panel-title">Card Image</div>
-            <label className="edit-upload">
-              <input
-                className="edit-upload-input"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-              />
-              <span>{draft.image_url ? 'Replace image' : 'Upload image'}</span>
-            </label>
           </div>
 
           <div className="edit-panel">

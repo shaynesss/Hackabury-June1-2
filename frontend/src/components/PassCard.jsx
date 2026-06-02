@@ -19,6 +19,8 @@ const QR_DATA = [
   [8,20],[13,20],[15,20],[16,20],[18,20],[20,20],
 ]
 
+const PDF417_IMAGE_URL = '/31506377-88f45d4c-af77-11e7-9604-9d8035a56654.png'
+
 function QRCode({ fill = 'black', bgFill = 'white' }) {
   return (
     <svg width="100" height="100" viewBox="0 0 21 21" style={{ display: 'block' }}>
@@ -83,7 +85,9 @@ function PDF417Barcode() {
 
 function BarcodeDisplay({ type = 'qr' }) {
   if (type === 'barcode') return <LinearBarcode />
-  if (type === 'pdf417') return <PDF417Barcode />
+  if (type === 'pdf417') {
+    return <img className="barcode-image" src={PDF417_IMAGE_URL} alt="PDF417 barcode" />
+  }
   return <QRCode fill="#1a1a1a" bgFill="#ffffff" />
 }
 

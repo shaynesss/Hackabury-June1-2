@@ -33,10 +33,19 @@ export default function App() {
   const [walletType, setWalletType] = useState('apple')
   const [error, setError] = useState(null)
 
+  function inferBarcodeType(passType) {
+    if (passType === 'Event Pass') return 'pdf417'
+    if (passType === 'Loyalty Card') return 'barcode'
+    if (passType === 'Member ID') return 'barcode'
+    if (passType === 'Supporter Card') return 'qr'
+    return 'qr'
+  }
+
   function handleDemo() {
     setError(null)
     setPassData(MOCK_DATA)
     setWalletType('apple')
+    setBarcodeType(inferBarcodeType(MOCK_DATA?.pass_type))
     setIsRevealing(true)
     setStage('loading')
     setTimeout(() => {
@@ -55,6 +64,7 @@ export default function App() {
       const data = await scrape(url)
       if (data.error) throw new Error(data.error)
       setPassData(data)
+      setBarcodeType(inferBarcodeType(data?.pass_type))
       setIsRevealing(true)
       setTimeout(() => {
         setIsRevealing(false)
