@@ -24,7 +24,7 @@ Gemini 2.5 Flash — Brand Analysis Agent
 Structured JSON: brand name, colours, pass type, fields, tagline
         ↓
 Frontend animates pass card field by field
-Strip/banner image loaded via /api/proxy (server-side fetch, avoids CORS)
+Strip/banner image loades 
         ↓
 User edits inline → CTA screen → mock send to Romax team
 ```
