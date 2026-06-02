@@ -52,14 +52,6 @@ export default function InfoPanel({ data }) {
         ))}
       </div>
 
-      {logo_url && (
-        <div className="info-section">
-          <div className="info-section-title">Logo Source</div>
-          <div style={{ fontSize: 11, color: 'var(--muted)', wordBreak: 'break-all', lineHeight: 1.5 }}>
-            {logo_url}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

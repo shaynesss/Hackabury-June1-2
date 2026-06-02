@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import html2canvas from 'html2canvas'
 import PassCard from './PassCard'
 
 export default function CTAScreen({ data, onBack }) {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const cardRef = useRef(null)
 
   function handleSend() {
     if (!email) return
@@ -11,9 +14,23 @@ export default function CTAScreen({ data, onBack }) {
     setSent(true)
   }
 
+  async function handleDownload() {
+    if (!cardRef.current) return
+    setDownloading(true)
+    try {
+      const canvas = await html2canvas(cardRef.current, { scale: 3, useCORS: true, backgroundColor: null })
+      const link = document.createElement('a')
+      link.download = `${data.brand_name || 'pass'}-card.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   return (
     <div className="cta-screen">
-      <div className="cta-pass-mini">
+      <div className="cta-pass-mini" ref={cardRef}>
         <PassCard data={data} walletType="apple" />
       </div>
 
@@ -54,6 +71,9 @@ export default function CTAScreen({ data, onBack }) {
       )}
 
       <div className="cta-secondary-links">
+        <button className="cta-link-btn" onClick={handleDownload} disabled={downloading}>
+          {downloading ? 'Saving...' : 'Save as image'}
+        </button>
         <button className="cta-link-btn" onClick={onBack}>← Back to edit</button>
       </div>
     </div>

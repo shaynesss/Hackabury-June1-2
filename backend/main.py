@@ -1,5 +1,6 @@
+import base64
 import os
-from urllib.parse import quote
+from urllib.parse import quote, urlparse
 
 import httpx
 from fastapi import FastAPI, Query
@@ -74,5 +75,15 @@ async def scrape(req: ScrapeRequest):
     if scraped.get("blocked"):
         result["blocked"] = True
         result["block_reason"] = scraped.get("block_reason", "unknown")
+        if not result.get("logo_url"):
+            try:
+                domain = urlparse(req.url).netloc.lstrip("www.")
+                async with httpx.AsyncClient(follow_redirects=True, timeout=4) as client:
+                    r = await client.get(f"https://logo.clearbit.com/{domain}")
+                if r.status_code == 200 and len(r.content) > 100:
+                    mime = r.headers.get("content-type", "image/png").split(";")[0].strip()
+                    result["logo_url"] = f"data:{mime};base64,{base64.b64encode(r.content).decode()}"
+            except Exception:
+                pass
 
     return result
