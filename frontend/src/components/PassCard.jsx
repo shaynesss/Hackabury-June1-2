@@ -176,8 +176,9 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
   }, [])
 
   const { brand_name, logo_url, colours, pass_type, fields, tagline, strip_image, show_strip } = data
-  const primary  = colours?.primary || '#1a1a1a'
-  const textCol  = colours?.text    || '#ffffff'
+  const primary   = colours?.primary   || '#1a1a1a'
+  const secondary = colours?.secondary || '#ffffff'
+  const textCol   = colours?.text      || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
   const headerBg = step >= 1 ? primary : '#1c1c2a'
   const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
@@ -201,7 +202,7 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
         <div style={show(step, 2)}>{logoEl}</div>
         <div className="pass-brand" style={{ color: textCol, ...show(step, 3) }}>
           <div className="pass-brand-name">{brand_name}</div>
-          <div className="pass-type-label">{pass_type}</div>
+          <div className="pass-type-label" style={{ color: secondary }}>{pass_type}</div>
         </div>
       </div>
       {show_strip && strip_image && (
@@ -213,7 +214,7 @@ function RevealingCard({ data, barcodeType = 'qr' }) {
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field" style={show(step, 4 + i)}>
-              <div className="pass-field-label">{f.label}</div>
+              <div className="pass-field-label" style={{ color: secondary }}>{f.label}</div>
               <div className="pass-field-value">{f.value}</div>
             </div>
           ))}
@@ -248,8 +249,9 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
   }
 
   const { brand_name, logo_url, colours, pass_type, fields, tagline, strip_image, show_strip } = data
-  const primary  = colours?.primary  || '#1a1a1a'
-  const textCol  = colours?.text     || '#ffffff'
+  const primary   = colours?.primary   || '#1a1a1a'
+  const secondary = colours?.secondary || '#ffffff'
+  const textCol   = colours?.text      || '#ffffff'
   const logoFilter = textCol === '#ffffff' || textCol === '#fff' ? 'brightness(0) invert(1)' : 'none'
 
   const logoEl = logo_url && !imgError
@@ -269,7 +271,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
             {logoEl}
             <div className="pass-brand" style={{ color: textCol }}>
               <div className="pass-brand-name">{brand_name}</div>
-              <div className="pass-type-label">{pass_type}</div>
+              <div className="pass-type-label" style={{ color: secondary }}>{pass_type}</div>
             </div>
           </div>
           {stripEl}
@@ -277,7 +279,7 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
             <div className="pass-fields">
               {visibleFields.map((f, i) => (
                 <div key={i} className="pass-field">
-                  <div className="pass-field-label">{f.label}</div>
+                  <div className="pass-field-label" style={{ color: secondary }}>{f.label}</div>
                   <div className="pass-field-value">{f.value}</div>
                 </div>
               ))}
@@ -309,14 +311,14 @@ export default function PassCard({ data, walletType = 'apple', isLoading = false
               </div>
           }
           <div className="pass-brand-name" style={{ color: textCol, marginTop: 8 }}>{brand_name}</div>
-          <div className="pass-type-label" style={{ color: textCol, opacity: 0.7 }}>{pass_type}</div>
+          <div className="pass-type-label" style={{ color: secondary }}>{pass_type}</div>
         </div>
         {stripEl}
         <div className="pass-body" style={{ background: '#ffffff', padding: '14px 18px 12px' }}>
           <div className="pass-fields">
             {visibleFields.map((f, i) => (
               <div key={i} className="pass-field">
-                <div className="pass-field-label" style={{ color: '#86868b' }}>{f.label}</div>
+                <div className="pass-field-label" style={{ color: secondary }}>{f.label}</div>
                 <div className="pass-field-value" style={{ color: '#1d1d1f' }}>{f.value}</div>
               </div>
             ))}
