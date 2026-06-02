@@ -41,6 +41,8 @@ export default function EditPanel({
     ...data,
     colours: { ...data.colours },
     fields: data.fields.map(f => ({ ...f })),
+    image_position: data.image_position || 'bottom',
+    image_stretch: Boolean(data.image_stretch),
   })
   const [localBarcodeType, setLocalBarcodeType] = useState(barcodeType)
 
@@ -70,6 +72,14 @@ export default function EditPanel({
     const reader = new FileReader()
     reader.onload = () => set('image_url', reader.result)
     reader.readAsDataURL(file)
+  }
+
+  function handleImagePositionChange(val) {
+    set('image_position', val)
+  }
+
+  function handleImageStretchChange(val) {
+    set('image_stretch', val === 'stretch')
   }
 
   function handleIconUpload(e) {
@@ -163,6 +173,28 @@ export default function EditPanel({
               />
               <span>{draft.image_url ? 'Replace image' : 'Upload image'}</span>
             </label>
+            <div className="edit-group">
+              <label className="edit-label">Image position</label>
+              <select
+                className="edit-select-pill"
+                value={draft.image_position || 'bottom'}
+                onChange={e => handleImagePositionChange(e.target.value)}
+              >
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+              </select>
+            </div>
+            <div className="edit-group">
+              <label className="edit-label">Image stretch</label>
+              <select
+                className="edit-select-pill"
+                value={draft.image_stretch ? 'stretch' : 'fit'}
+                onChange={e => handleImageStretchChange(e.target.value)}
+              >
+                <option value="fit">Fit</option>
+                <option value="stretch">Stretch</option>
+              </select>
+            </div>
           </div>
 
           <button className="btn-back" onClick={onRestart} type="button">

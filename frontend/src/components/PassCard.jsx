@@ -171,13 +171,20 @@ function RevealingCard({ data, barcodeType = 'qr', walletType = 'apple' }) {
     return () => timers.forEach(clearTimeout)
   }, [])
 
-  const { brand_name, logo_url, colours, pass_type, fields, image_url } = data
+  const { brand_name, logo_url, colours, pass_type, fields, image_url, image_position, image_stretch } = data
   const displayBrand = clampTitle(brand_name)
   const displayType = clampTitle(pass_type)
   const primary = colours?.primary || '#2d5a8e'
   const textColor = colours?.text || '#ffffff'
   const secondaryColor = colours?.secondary || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
+  const imagePosition = image_position || 'bottom'
+  const imageStretch = Boolean(image_stretch)
+  const imageMarkup = image_url ? (
+    <div className={`pass-image-wrap${imageStretch ? ' pass-image-wrap--stretch' : ''}`}>
+      <img className="pass-image" src={image_url} alt="" />
+    </div>
+  ) : null
 
   return (
     <div className={`pass-card is-loading wallet-${walletType}`} style={{ background: primary, opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.4s ease', '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
@@ -190,6 +197,11 @@ function RevealingCard({ data, barcodeType = 'qr', walletType = 'apple' }) {
         <div style={show(step, 3)}>
           <div className="pass-type-heading">{displayType}</div>
         </div>
+        {imagePosition === 'top' && imageMarkup && (
+          <div style={show(step, 4)}>
+            {imageMarkup}
+          </div>
+        )}
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field" style={show(step, 4 + i)}>
@@ -201,11 +213,7 @@ function RevealingCard({ data, barcodeType = 'qr', walletType = 'apple' }) {
       </div>
       <div className="pass-divider" style={{ opacity: step >= 7 ? 0.3 : 0, transition: 'opacity 0.5s' }} />
       <div className="pass-footer" style={show(step, 8)}>
-        {image_url && (
-          <div className="pass-image-wrap">
-            <img className="pass-image" src={image_url} alt="" />
-          </div>
-        )}
+        {imagePosition === 'bottom' && imageMarkup}
         <div className="barcode-box">
           <BarcodeDisplay type={barcodeType} />
         </div>
@@ -215,13 +223,20 @@ function RevealingCard({ data, barcodeType = 'qr', walletType = 'apple' }) {
 }
 
 function StaticCard({ data, barcodeType = 'qr', className = '', walletType = 'apple' }) {
-  const { brand_name, logo_url, colours, pass_type, fields, image_url } = data
+  const { brand_name, logo_url, colours, pass_type, fields, image_url, image_position, image_stretch } = data
   const displayBrand = clampTitle(brand_name)
   const displayType = clampTitle(pass_type)
   const primary = colours?.primary || '#2d5a8e'
   const textColor = colours?.text || '#ffffff'
   const secondaryColor = colours?.secondary || '#ffffff'
   const visibleFields = (fields || []).slice(0, 4)
+  const imagePosition = image_position || 'bottom'
+  const imageStretch = Boolean(image_stretch)
+  const imageMarkup = image_url ? (
+    <div className={`pass-image-wrap${imageStretch ? ' pass-image-wrap--stretch' : ''}`}>
+      <img className="pass-image" src={image_url} alt="" />
+    </div>
+  ) : null
 
   return (
     <div className={`pass-card ${className} wallet-${walletType}`} style={{ background: primary, '--pass-text': textColor, '--pass-secondary': secondaryColor }}>
@@ -232,6 +247,7 @@ function StaticCard({ data, barcodeType = 'qr', className = '', walletType = 'ap
       <div className="pass-divider" />
       <div className="pass-body">
         <div className="pass-type-heading">{displayType}</div>
+        {imagePosition === 'top' && imageMarkup}
         <div className="pass-fields">
           {visibleFields.map((f, i) => (
             <div key={i} className="pass-field">
@@ -243,11 +259,7 @@ function StaticCard({ data, barcodeType = 'qr', className = '', walletType = 'ap
       </div>
       <div className="pass-divider" />
       <div className="pass-footer">
-        {image_url && (
-          <div className="pass-image-wrap">
-            <img className="pass-image" src={image_url} alt="" />
-          </div>
-        )}
+        {imagePosition === 'bottom' && imageMarkup}
         <div className="barcode-box">
           <BarcodeDisplay type={barcodeType} />
         </div>
