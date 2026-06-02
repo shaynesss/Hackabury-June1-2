@@ -130,7 +130,7 @@ When blocked, Gemini falls back to brand knowledge and a `BlockedScreen` is show
 | Scraping | httpx + BeautifulSoup |
 | Colour extraction | colorthief |
 | AI | Gemini 2.5 Flash |
-| Dev tooling | Claude |
+| Debugging | Claude |
 
 ---
 
