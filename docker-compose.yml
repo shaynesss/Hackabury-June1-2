@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: ./backend
+    image: passpreview-backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    image: passpreview-frontend
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: http://backend:8000
+    ports:
+      # 8080 for local dev; use FRONTEND_PORT=80 on the EC2 host.
+      - "${FRONTEND_PORT:-8080}:80"
